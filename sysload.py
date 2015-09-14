@@ -36,6 +36,18 @@ def get_datastream(feed):
     datastream = feed.datastreams.create("load_avg", tags="load_01")
     return datastream
 
+def get_device_status(feed):
+  try:
+    datastream = feed.datastreams.get("device_status")
+    if DEBUG:
+      print ("Found existing device status datastream")
+    return datastream
+  except:
+    if DEBUG:
+      print ("Creating new device status datastream")
+    datastream = feed.datastreams.create("device_status", tags="device_status_01")
+    return datastream	
+	
 # main program entry point - runs continuously updating our datastream with the
 # current 1 minute load average
 def run():
@@ -46,7 +58,9 @@ def run():
   datastream = get_datastream(feed)
   datastream.max_value = None
   datastream.min_value = None
-  datastream.device.pump.status = None
+  
+  status_stream = get_device_status(feed)
+  status_stream.device_status = None
 
   
   while True:
@@ -57,14 +71,16 @@ def run():
 
     datastream.current_value = load_avg
     datastream.at = datetime.datetime.utcnow()
+	
 	if load_avg >= TEMP_THRESHOLD :
 		print("System temprature crossed threshold...starting pump")
-		datastream.device.pump.status = 1
+		status_stream.device_status = 1
 	else :
-		print("System temprature is in limit")
-		datastream.device.pump.status = 0
+		print("System temprature is in limits")
+		status_stream.device_status = 0
     try:
       datastream.update()
+	  status_stream.update();
     except requests.HTTPError as e:
       print ("HTTPError({0}): {1}".format(e.errno, e.strerror))
 
