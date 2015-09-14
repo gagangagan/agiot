@@ -11,6 +11,7 @@ import requests
 FEED_ID = os.environ["FEED_ID"]
 API_KEY = os.environ["API_KEY"]
 DEBUG = os.environ["DEBUG"] or false
+TEMP_THRESHOLD = 0.30
 
 # initialize api client
 api = xively.XivelyAPIClient(API_KEY)
@@ -45,6 +46,7 @@ def run():
   datastream = get_datastream(feed)
   datastream.max_value = None
   datastream.min_value = None
+  datastream.device.pump.status = None
 
   
   while True:
@@ -55,6 +57,12 @@ def run():
 
     datastream.current_value = load_avg
     datastream.at = datetime.datetime.utcnow()
+	if load_avg >= TEMP_THRESHOLD :
+		print("System temprature crossed threshold...starting pump")
+		datastream.device.pump.status = 1
+	else :
+		print("System temprature is in limit")
+		datastream.device.pump.status = 0
     try:
       datastream.update()
     except requests.HTTPError as e:
