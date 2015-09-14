@@ -46,6 +46,7 @@ def run():
   datastream.max_value = None
   datastream.min_value = None
 
+  
   while True:
     load_avg = read_loadavg()
 
