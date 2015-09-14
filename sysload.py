@@ -18,7 +18,7 @@ api = xively.XivelyAPIClient(API_KEY)
 # function to read 1 minute load average from system uptime command
 def read_loadavg():
   if DEBUG:
-    print "Reading load average"
+    print ("Reading load average")
   return subprocess.check_output(["awk '{print $1}' /proc/loadavg"], shell=True)
 
 # function to return a datastream object. This either creates a new datastream,
@@ -27,11 +27,11 @@ def get_datastream(feed):
   try:
     datastream = feed.datastreams.get("load_avg")
     if DEBUG:
-      print "Found existing datastream"
+      print ("Found existing datastream")
     return datastream
   except:
     if DEBUG:
-      print "Creating new datastream"
+      print ("Creating new datastream")
     datastream = feed.datastreams.create("load_avg", tags="load_01")
     return datastream
 
@@ -50,14 +50,14 @@ def run():
     load_avg = read_loadavg()
 
     if DEBUG:
-      print "Updating Xively feed with value: %s" % load_avg
+      print ("Updating Xively feed with value: %s" % load_avg)
 
     datastream.current_value = load_avg
     datastream.at = datetime.datetime.utcnow()
     try:
       datastream.update()
     except requests.HTTPError as e:
-      print "HTTPError({0}): {1}".format(e.errno, e.strerror)
+      print ("HTTPError({0}): {1}".format(e.errno, e.strerror))
 
     time.sleep(10)
 
