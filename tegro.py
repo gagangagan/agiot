@@ -158,8 +158,18 @@ def update_stream(stream,value):
      print ("HTTPError({0}): {1}".format(e.errno, e.strerror))
 
 def execute_auto_mode(temp,humidity, feed):
-  temp_threshold_stream = get_temperature_threadhold_stream(feed) 
-  if temp >= temp_threshold_stream.current 
+  temp_threshold_stream = get_temperature_threshold_stream(feed) 
+  if temp >= temp_threshold_stream.current_value:
+    GPIO.output(17,GPIO.HIGH)
+  else:
+    GPIO.output(17,GPIO.LOW) 
+     
+  humidity_threshold_stream = get_humidity_threshold_stream(feed) 
+  if humidity >= humidity_threshold_stream.current_value:
+    GPIO.output(27,GPIO.HIGH)
+  else:
+    GPIO.output(27,GPIO.LOW) 
+
 
 # main program entry point - runs continuously updating our datastream with the
 # current 1 minute temperature & humidity readings 
@@ -176,8 +186,6 @@ def run():
   temperature_threshold_stream = get_temperature_threshold_stream(feed)
   humidity_threshold_stream = get_humidity_threshold_stream(feed)
   operating_mode_stream = get_mode_stream(feed)
-
-
 
 
   
