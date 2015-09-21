@@ -21,6 +21,8 @@ DEBUG = os.environ["DEBUG"] or false
 TEMP_THRESHOLD = "20"
 MODE_AUTO = "0"
 MODE_MAMNUAL = "1"
+CONTROLLER_ENABLED = "1"
+CONTROLLER_DISABLED = "0"
 
 
 
@@ -110,27 +112,27 @@ def get_temperature_controller_stream(feed):
      
 def get_temperature_threshold_stream(feed):
   try:
-    datastream = feed.datastreams.get("temperature_threshold")
+    datastream = feed.datastreams.get("field_temperature_threshold")
     if DEBUG:
       print (" Temperature Threshold  Stream Found")
     return datastream
   except:
     if DEBUG:
       print( "Creating temperature_threshold datastream")
-    datastream = feed.datastreams.create("temperature_threshold",tags="temperature_threshold")
+    datastream = feed.datastreams.create("field_temperature_threshold",tags="temperature_threshold")
     return datastream
 
 
 def get_humidity_threshold_stream(feed):
   try:
-    datastream = feed.datastreams.get("humidity_threshold")
+    datastream = feed.datastreams.get("field_humidity_threshold")
     if DEBUG:
       print ("Humidity Threshold  Stream Found")
     return datastream
   except:
     if DEBUG:
       print( "Creating humidity_threshold datastream")
-    datastream = feed.datastreams.create("humidity_threshold",tags="humidity_threshold")
+    datastream = feed.datastreams.create("field_humidity_threshold",tags="humidity_threshold")
     return datastream
 
 
@@ -158,14 +160,38 @@ def update_stream(stream,value):
      print ("HTTPError({0}): {1}".format(e.errno, e.strerror))
 
 def execute_auto_mode(temp,humidity, feed):
+
   temp_threshold_stream = get_temperature_threshold_stream(feed) 
-  if temp >= temp_threshold_stream.current_value:
+  if int(temp)  >= int(temp_threshold_stream.current_value):
     GPIO.output(17,GPIO.HIGH)
   else:
     GPIO.output(17,GPIO.LOW) 
+
+
      
   humidity_threshold_stream = get_humidity_threshold_stream(feed) 
-  if humidity >= humidity_threshold_stream.current_value:
+
+  if int(humidity) >= int(humidity_threshold_stream.current_value):
+    GPIO.output(27,GPIO.HIGH)
+  else:
+    GPIO.output(27,GPIO.LOW) 
+
+
+def execute_manual_mode(temp,humidity, feed):
+  print("Executing Manual Mode")
+
+  temp_controller_stream = get_temperature_controller_stream(feed) 
+  print("Temperatur Controller = " + str(temp_controller_stream.current_value))
+  if CONTROLLER_ENABLED == temp_controller_stream.current_value:
+    print("Temp Controller Enabled")
+    GPIO.output(17,GPIO.HIGH)
+  else:
+    print("Temp Controller disabled")
+    GPIO.output(17,GPIO.LOW) 
+
+  humidity_controller_stream = get_humidity_controller_stream(feed) 
+
+  if CONTROLLER_ENABLED == humidity_controller_stream.current_value:
     GPIO.output(27,GPIO.HIGH)
   else:
     GPIO.output(27,GPIO.LOW) 
@@ -197,7 +223,7 @@ def run():
     #humidity_controller_stream = get_humidity_controller_stream(feed)
     #temperature_threshold_stream = get_temperature_threshold_stream(feed)
     #humidity_threshold_stream = get_humidity_threshold_stream(feed)
-    #operating_mode_stream = get_mode_stream(feed)
+    operating_mode_stream = get_mode_stream(feed)
 
      
     reading_h,reading_t = DHT.read_retry(11,4)
