@@ -190,12 +190,12 @@ def execute_manual_mode(temp,humidity, feed):
     print("Temp Controller disabled")
     GPIO.output(17,GPIO.LOW) 
 
-  humidity_controller_stream = get_humidity_controller_stream(feed) 
+  #humidity_controller_stream = get_humidity_controller_stream(feed) 
 
-  if CONTROLLER_ENABLED == humidity_controller_stream.current_value:
-    GPIO.output(27,GPIO.HIGH)
-  else:
-    GPIO.output(27,GPIO.LOW) 
+  #if CONTROLLER_ENABLED == humidity_controller_stream.current_value:
+  #  GPIO.output(27,GPIO.HIGH)
+  #else:
+  #  GPIO.output(27,GPIO.LOW) 
 
 
 # main program entry point - runs continuously updating our datastream with the
@@ -242,6 +242,6 @@ def run():
 
 
 
-    time.sleep(10)
+    time.sleep(1)
 
 run()
